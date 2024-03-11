@@ -14,7 +14,7 @@ jobs:
         with:
           repository: ${{ github.repository }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          config: https://raw.githubusercontent.com/dongchengjie/airport/main/subs/_config.yaml
+          config: https://raw.githubusercontent.com/dongchengjie/subs-puller/main/example.yaml
 
 ```
 
@@ -33,7 +33,7 @@ data:
   - id: ChromeGo # 名称（必填）
     source: clash # 订阅类型（必填）
     target: v2ray # 转换订阅类型
-    urls: # url列表,多个订阅将合并为一个（要求source类型一致）
+    urls: # url列表（必填）。多个订阅将合并为一个（要求source类型一致）
       - https://raw.githubusercontent.com/Alvin9999/pac2/master/clash.meta2/config.yaml
       - https://raw.githubusercontent.com/Alvin9999/pac2/master/clash.meta2/1/config.yaml
       - https://raw.githubusercontent.com/Alvin9999/pac2/master/clash.meta2/2/config.yaml
