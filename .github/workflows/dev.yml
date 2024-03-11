@@ -9,7 +9,7 @@ jobs:
 
     steps:
       - name: Fetch subscribe files
-        uses: dongchengjie/subs-puller@master
+        uses: dongchengjie/subs-puller@main
         with:
           repository: ${{ github.repository }}
           token: ${{ secrets.GITHUB_TOKEN }}

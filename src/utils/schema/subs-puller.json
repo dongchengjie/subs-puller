@@ -51,12 +51,6 @@
             "description": "path to save output files",
             "type": "string",
             "minLength": 1
-          },
-          "encoder": {
-            "description": "file output encoder",
-            "type": "string",
-            "enum": ["base64"],
-            "errorMessage": "must be equal to one of the allowed values: [base64]"
           }
         },
         "required": ["id", "source", "urls", "output"],

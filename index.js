@@ -69,7 +69,6 @@ const getActionInput = names => {
           await push(repository, key.output, branch, token, value);
         }
       }
-      logger.info('Action finished!');
     }
   } catch (err) {
     logger.error(err);
