@@ -1,0 +1,19 @@
+name: Workflow Dev
+
+on:
+  push:
+    paths:
+      - '.github/workflows/dev.yml'
+  workflow_dispatch:
+
+jobs:
+  delete-workflow-runs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Delete workflow runs
+        uses: dongchengjie/subs-puller@master
+        with:
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config: https://raw.githubusercontent.com/dongchengjie/subs-puller/master/dev/config.yaml?token=GHSAT0AAAAAACO6PJVJSDDEGUN6N4NMKGZIZPPBFDA
