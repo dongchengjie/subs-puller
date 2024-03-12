@@ -21,14 +21,18 @@ export const push = async (files, repository, branch, token, message, committer,
 
 const commitFiles = async (files, octokit, owner, repo, branch, message, committer, committerEmail) => {
   try {
-    // 获取当前分支的树
+    // 获取当前分支引用
     const branchRef = await octokit.rest.git.getRef({ owner, repo, ref: `heads/${branch}` });
+    logger.info(`current branch ref: ${branchRef.data.object.sha}.`);
+
+    // 获取当前分支树引用
     const branchTree = await octokit.rest.git.getTree({
       owner,
       repo,
       tree_sha: branchRef.data.object.sha,
       recursive: true
     });
+    logger.info(`current tree ref: ${branchTree.data.sha}.`);
 
     // 创建一个新的树对象，包含上传的多个文件
     const newTree = await octokit.rest.git.createTree({
@@ -42,6 +46,7 @@ const commitFiles = async (files, octokit, owner, repo, branch, message, committ
       })),
       base_tree: branchTree.data.sha
     });
+    logger.info(`a new tree is created.`);
 
     // 创建一个新的提交对象
     const newCommit = await octokit.rest.git.createCommit({
@@ -55,17 +60,18 @@ const commitFiles = async (files, octokit, owner, repo, branch, message, committ
       tree: newTree.data.sha,
       parents: [branchRef.data.object.sha]
     });
+    logger.info(`a new commit is created.`);
 
     // 更新分支引用指向新的提交
+    logger.info('Committing Files.');
     await octokit.rest.git.updateRef({
       owner,
       repo,
       ref: `heads/${branch}`,
       sha: newCommit.data.sha
     });
-
-    logger.info('Files commit success.');
+    logger.info('Committing Files success.');
   } catch (error) {
-    logger.error('Error committing files:', error);
+    logger.error('Error committing files:', error.message);
   }
 };

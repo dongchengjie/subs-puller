@@ -75,7 +75,6 @@ const getActionInput = names => {
         .map(([key, value]) => (value ? { path: key.output, content: value } : null))
         .filter(Boolean);
       await push(files, repository, branch, token);
-      logger.info('Pushing subscribe files finished.');
     }
   } catch (err) {
     logger.error(err);
