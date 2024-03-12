@@ -1,13 +1,15 @@
-import { load, dump } from 'js-yaml';
+import { load } from 'js-yaml';
 import { logger } from '../../../utils/logger.js';
-import subConverter from '../../converter/sub-converter.js';
+import { generateConfig } from '../../combiner/clash/clash-combiner.js';
 
 export default {
   process: async (content, item) => {
     try {
+      // 去除脏数据
+      content = content.replaceAll('!<str> ', '');
       // 转成json对象
       const json = load(content);
-      json['proxies'] = json['proxies']
+      const proxies = json['proxies']
         .map(proxy => {
           if (proxy?.type === 'ss') {
             const cipherOK = isValidShadowsocksCipher(proxy?.cipher);
@@ -20,9 +22,16 @@ export default {
             return proxy;
           }
         })
+        .map(proxy => {
+          if (proxy?.type === 'ssr') {
+            return isValidShadowsocksRCipher(proxy?.cipher) ? proxy : null;
+          } else {
+            return proxy;
+          }
+        })
         .filter(Boolean);
       // 转回yaml
-      return await subConverter.convert(dump(json), 'clash', 'clash');
+      return generateConfig(proxies);
     } catch (err) {
       logger.error(`Error processing ${item.id}: ${err.message}`);
     }
@@ -53,6 +62,10 @@ const isValidShadowsocksCipher = cipher => {
       '2022-blake3-chacha20-poly1305'
     ].includes(cipher)
   );
+};
+
+const isValidShadowsocksRCipher = cipher => {
+  return !(cipher && ['rc4'].includes(cipher));
 };
 
 const isValidShadowsocksPlugin = plugin => {

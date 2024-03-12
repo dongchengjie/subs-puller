@@ -19,10 +19,11 @@ export default {
       case 'v2ray':
         return v2rayCombiner;
       default:
-        return { combine: contents => (contents ? contents.join('\n') : contents) };
+        return { combine: content => (content ? content.join('\n') : content) };
     }
   },
   getConverter: (source, target) => {
+    if (!target || source === target) return { convert: content => content };
     switch (source) {
       case 'clash':
         return clashConverter;
@@ -39,7 +40,7 @@ export default {
       case 'v2ray':
         return v2rayPostProcessor;
       default:
-        return { combine: contents => contents };
+        return { combine: content => content };
     }
   }
 };

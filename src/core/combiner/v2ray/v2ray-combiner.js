@@ -7,6 +7,7 @@ export default {
       const dest = contents
         .map(content => {
           try {
+            content = content.trim();
             return isBase64(content) ? base64Decode(content) : content;
           } catch (err) {
             logger.error(`Error combining ${item.id}: ${err.message}`);

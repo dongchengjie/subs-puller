@@ -48,35 +48,32 @@ const getActionInput = names => {
       logger.info('Subscribe files fetched.');
 
       // 合并、转换、后置处理
-      let resultMap = new Map(
-        await Promise.all(
-          Array.from(contents.entries()).map(async ([item, contents]) => {
-            // 合并
-            logger.info(`Combining ${item.id}...`);
-            const combinedContent = await dispatcher.getCombiner(item.source, item.target).combine(contents, item);
-            logger.info(`${item.id} combined.`);
-            if (!combinedContent) return null;
+      let resultMap = await Promise.all(
+        Array.from(contents.entries()).map(async ([item, contents]) => {
+          // 合并
+          logger.info(`Combining ${item.id}...`);
+          const combinedContent = await dispatcher.getCombiner(item.source, item.target).combine(contents, item);
+          logger.info(`${item.id} combined.`);
+          if (!combinedContent) return null;
 
-            // 转换
-            logger.info(`Converting ${item.id}...`);
-            const convertedContent = await dispatcher
-              .getConverter(item.source, item.target)
-              .convert(combinedContent, item);
-            logger.info(`${item.id} converted.`);
-            if (!convertedContent) return null;
+          // 转换
+          logger.info(`Converting ${item.id}...`);
+          const convertedContent = await dispatcher
+            .getConverter(item.source, item.target)
+            .convert(combinedContent, item);
+          logger.info(`${item.id} converted.`);
+          if (!convertedContent) return null;
 
-            // 结果处理
-            logger.info(`Processing ${item.id}...`);
-            const processedContent = await dispatcher
-              .getResultProcessor(item.source, item.target)
-              .process(convertedContent, item);
-            logger.info(`${item.id} processed.`);
-            return processedContent != null ? [item, processedContent] : null;
-          })
-        )
+          // 结果处理
+          logger.info(`Processing ${item.id}...`);
+          const processedContent = await dispatcher
+            .getResultProcessor(item.source, item.target)
+            .process(convertedContent, item);
+          logger.info(`${item.id} processed.`);
+          return processedContent != null ? [item, processedContent] : null;
+        })
       );
-      // 去除结果为空的item
-      resultMap = new Map(Array.from(resultMap.entries()).filter(([, result]) => result));
+      resultMap = new Map(resultMap.filter(Boolean).filter(([item, result]) => result));
 
       // 推送到仓库
       const files = Array.from(resultMap.entries())
