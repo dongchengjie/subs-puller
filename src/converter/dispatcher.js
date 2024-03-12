@@ -53,10 +53,6 @@ const subConverter = async (content, _source, target) => {
 const subConverterAvaliable = async () => {
   return axios
     .get('http://127.0.0.1:25500')
-    .then(res => {
-      return false;
-    })
-    .catch(err => {
-      return err?.response?.status === '404' && err?.response?.data === 'File not found.';
-    });
+    .then(res => false)
+    .catch(err => err?.response?.status === '404');
 };
