@@ -21,7 +21,7 @@ const getActionInput = names => {
     const [repository, branch, token, config] = getActionInput(['repository', 'branch', 'token', 'config']);
 
     // 读取配置、schema文件
-    const configContent = (await axios.get(config)).data;
+    const configContent = process.env['dev'] ? readFileSync('./example.yaml') : (await axios.get(config)).data;
     const schemaContent = readFileSync(currentDir() + '/src/utils/schema/subs-puller.json', 'utf8');
 
     // 使用schema校验配置文件格式
