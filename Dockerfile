@@ -16,4 +16,4 @@ RUN npm ci
 COPY . .
 
 # Run
-ENTRYPOINT ["sh", "-c", "/subconverter/subconverter & && node /index.js"]
+ENTRYPOINT ["sh", "-c", "/subconverter/subconverter & node /index.js"]
