@@ -26,7 +26,9 @@ const subConverter = async (content, _source, target) => {
   let server;
   try {
     // 检查subConverter服务
-    checkSubConverter();
+    if (!(await subConverterAvaliable())) {
+      throw new Error('subConverter service unavaliable');
+    }
     // 启动文件代理
     server = await exposeContent(content);
     const local = `http://127.0.0.1:${server.address().port}`;
@@ -48,12 +50,13 @@ const subConverter = async (content, _source, target) => {
   return '';
 };
 
-const checkSubConverter = async () => {
-  const avaliable = axios
+const subConverterAvaliable = async () => {
+  return axios
     .get('http://127.0.0.1:25500')
-    .then(res => false)
-    .catch(err => err?.response?.status === '404' && err?.response?.data === 'File not found.');
-  if (!avaliable) {
-    logger.error('subConverter service unavaliable');
-  }
+    .then(res => {
+      return false;
+    })
+    .catch(err => {
+      return err?.response?.status === '404' && err?.response?.data === 'File not found.';
+    });
 };
