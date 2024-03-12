@@ -5,5 +5,7 @@ export function currentDir() {
   const stack = new Error().stack.split('\n')[2].trim();
   const callerFile = stack.match(/at .*?(file:.*?\.js):\d+:\d+/)[1];
   const callerFilePath = fileURLToPath(callerFile);
-  return dirname(callerFilePath);
+  const aa = dirname(callerFilePath);
+  console.log(aa);
+  return aa;
 }
