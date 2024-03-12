@@ -28,6 +28,7 @@ const getActionInput = names => {
     const jsonObject = load(configContent);
     if (validateSchema(schemaContent, jsonObject, errors => logger.error(errors))) {
       // 异步拉取订阅文件
+      logger.info('Fetching subscribe files...');
       const contents = new Map(
         (
           await Promise.all(
@@ -44,8 +45,10 @@ const getActionInput = names => {
           return result && result.length > 0;
         })
       );
+      logger.info('Fetching subscribe files finished.');
 
       // 合并订阅文件内容
+      logger.info('Combining subscribe files...');
       const combined = (
         await Promise.all(
           Array.from(contents.entries()).map(async ([key, value]) => {
@@ -54,21 +57,26 @@ const getActionInput = names => {
           })
         )
       ).filter(Boolean);
+      logger.info('Combining subscribe files finished.');
 
       // 转换订阅类型
+      logger.info('Converting subscribe files...');
       const converted = new Map();
       await Promise.all(
         Array.from(combined, async ([key, value]) => {
           converted.set(key, await getConverter(key.source, key.target)(value, key.source, key.target));
         })
       );
+      logger.info('Converting subscribe files finished.');
 
       // 推送到仓库
+      logger.info('Pushing subscribe files...');
       for (let [key, value] of converted) {
         if (value) {
           await push(repository, key.output, branch, token, value);
         }
       }
+      logger.info('Pushing subscribe files finished.');
     }
   } catch (err) {
     logger.error(err);
