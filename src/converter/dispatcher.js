@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { exposeContent } from '../utils/http-proxy.js';
 import { logger } from '../utils/logger.js';
+import net from 'net';
 
 // 订阅合并器
 import clash_combine from './clash/clash-combine.js';
@@ -22,18 +23,22 @@ export const getConverter = (source, target) => {
 };
 
 // 订阅转换器
+const localhost = '127.0.0.1';
+const port = '25500';
+const localService = `http://${localhost}:${port}`;
 const subConverter = async (content, _source, target) => {
   let server;
   try {
     // 检查subConverter服务
-    if (!(await subConverterAvaliable())) {
+    const avaliable = await subConverterAvaliable();
+    if (!avaliable) {
       throw new Error('subConverter service unavaliable');
     }
     // 启动文件代理
     server = await exposeContent(content);
     const local = `http://127.0.0.1:${server.address().port}`;
     // 构建转换地址
-    const url = `http://127.0.0.1:25500/sub?target=${target}&url=${encodeURIComponent(
+    const url = `${localService}/sub?target=${target}&url=${encodeURIComponent(
       local
     )}&config=https%3A%2F%2Fraw.githubusercontent.com%2FACL4SSR%2FACL4SSR%2Fmaster%2FClash%2Fconfig%2FACL4SSR_Online.ini`;
     // 订阅转换
@@ -51,8 +56,11 @@ const subConverter = async (content, _source, target) => {
 };
 
 const subConverterAvaliable = async () => {
-  return axios
-    .get('http://127.0.0.1:25500')
-    .then(res => false)
-    .catch(err => err?.response?.status === '404');
+  return new Promise(resolve => {
+    const client = net.createConnection({ port: port }, () => {
+      client.end();
+      resolve(true);
+    });
+    client.on('error', () => resolve(false));
+  });
 };
