@@ -1,3 +1,5 @@
+import { logger } from '../../utils/logger.js';
+
 export default {
   combine: contents => {
     const dest = contents

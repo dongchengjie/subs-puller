@@ -62,9 +62,9 @@ const commit = async (_axios, sha, content, message, committer, committerEmail) 
   return _axios({ method: 'put', data: requestBody })
     .then(res => {
       if (res.status === 200) {
-        logger.warning(`file '${res.data.content.name}' updated.`);
+        logger.notice(`file '${res.data.content.name}' updated.`);
       } else if (res.status === 201) {
-        logger.warning(`file '${res.data.content.name}' added.`);
+        logger.notice(`file '${res.data.content.name}' added.`);
       }
     })
     .catch(err => {
