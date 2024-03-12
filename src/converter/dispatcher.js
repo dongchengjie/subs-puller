@@ -31,7 +31,8 @@ const subConverter = async (content, _source, target) => {
     }
     // 启动文件代理
     server = await exposeContent(content);
-    const local = `http://127.0.0.1:${server.address().port}`;
+    // const local = `http://127.0.0.1:${server.address().port}`;
+    const local = `http://sub.xeton.dev`;
     // 构建转换地址
     const url = `http://127.0.0.1:25500/sub?target=${target}&url=${encodeURIComponent(
       local
