@@ -1,8 +1,8 @@
 import axios from 'axios';
+import dispatcher from './src/core/dispatcher.js';
 import dotenv from 'dotenv';
 import { currentDir } from './src/utils/path.js';
 import { fetchContents } from './src/utils/fetcher.js';
-import { getCombiner, getConverter } from './src/converter/dispatcher.js';
 import { getInput } from '@actions/core';
 import { load } from 'js-yaml';
 import { logger } from './src/utils/logger.js';
@@ -27,7 +27,7 @@ const getActionInput = names => {
     // 使用schema校验配置文件格式
     const jsonObject = load(configContent);
     if (validateSchema(schemaContent, jsonObject, errors => logger.error(errors))) {
-      // 异步拉取订阅文件
+      // 拉取订阅文件内容
       logger.info('Fetching subscribe files...');
       const contents = new Map(
         (
@@ -45,36 +45,44 @@ const getActionInput = names => {
           return result && result.length > 0;
         })
       );
-      logger.info('Fetching subscribe files finished.');
+      logger.info('Subscribe files fetched.');
 
-      // 合并订阅文件内容
-      logger.info('Combining subscribe files...');
-      const combined = (
+      // 合并、转换、后置处理
+      let resultMap = new Map(
         await Promise.all(
-          Array.from(contents.entries()).map(async ([key, value]) => {
-            const content = await getCombiner(key.source)(value);
-            return content && content.length > 0 ? [key, content] : null;
+          Array.from(contents.entries()).map(async ([item, contents]) => {
+            // 合并
+            logger.info(`Combining ${item.id}...`);
+            const combinedContent = await dispatcher.getCombiner(item.source, item.target).combine(contents);
+            logger.info(`${item.id} combined.`);
+            if (!combinedContent) return null;
+
+            // 转换
+            logger.info(`Converting ${item.id}...`);
+            const convertedContent = await dispatcher
+              .getConverter(item.source, item.target)
+              .convert(combinedContent, item.source, item.target);
+            logger.info(`${item.id} converted.`);
+            if (!convertedContent) return null;
+
+            // 结果处理
+            logger.info(`Processing ${item.id}...`);
+            const processedContent = await dispatcher
+              .getResultProcessor(item.source, item.target)
+              .process(convertedContent, item.source, item.target);
+            logger.info(`${item.id} processed.`);
+            return processedContent != null ? [item, processedContent] : null;
           })
         )
-      ).filter(Boolean);
-      logger.info('Combining subscribe files finished.');
-
-      // 转换订阅类型
-      logger.info('Converting subscribe files...');
-      const converted = new Map();
-      await Promise.all(
-        Array.from(combined, async ([key, value]) => {
-          converted.set(key, await getConverter(key.source, key.target)(value, key.source, key.target));
-        })
       );
-      logger.info('Converting subscribe files finished.');
+      // 去除结果为空的item
+      resultMap = new Map(Array.from(resultMap.entries()).filter(([, result]) => result));
 
       // 推送到仓库
-      const files = Array.from(converted.entries())
+      const files = Array.from(resultMap.entries())
         .map(([key, value]) => (value ? { path: key.output, content: value } : null))
         .filter(Boolean);
       if (files && files.length > 0) {
-        logger.info('Pushing subscribe files...');
         await push(files, repository, branch, token);
       }
     }
