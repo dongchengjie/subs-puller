@@ -53,7 +53,7 @@ const getActionInput = names => {
           Array.from(contents.entries()).map(async ([item, contents]) => {
             // 合并
             logger.info(`Combining ${item.id}...`);
-            const combinedContent = await dispatcher.getCombiner(item.source, item.target).combine(contents);
+            const combinedContent = await dispatcher.getCombiner(item.source, item.target).combine(contents, item);
             logger.info(`${item.id} combined.`);
             if (!combinedContent) return null;
 
@@ -61,7 +61,7 @@ const getActionInput = names => {
             logger.info(`Converting ${item.id}...`);
             const convertedContent = await dispatcher
               .getConverter(item.source, item.target)
-              .convert(combinedContent, item.source, item.target);
+              .convert(combinedContent, item);
             logger.info(`${item.id} converted.`);
             if (!convertedContent) return null;
 
@@ -69,7 +69,7 @@ const getActionInput = names => {
             logger.info(`Processing ${item.id}...`);
             const processedContent = await dispatcher
               .getResultProcessor(item.source, item.target)
-              .process(convertedContent, item.source, item.target);
+              .process(convertedContent, item);
             logger.info(`${item.id} processed.`);
             return processedContent != null ? [item, processedContent] : null;
           })

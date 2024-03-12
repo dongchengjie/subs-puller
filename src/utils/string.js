@@ -11,3 +11,24 @@ export const uuid = () =>
 const bytesToBase64 = bytes => btoa(new Uint8Array(bytes).reduce((data, byte) => data + String.fromCharCode(byte), ''));
 
 const base64ToBytes = base64 => new Uint8Array([...atob(base64)].map(char => char.charCodeAt(0)));
+
+export const substringBeforeLast = (str, delimiter) => {
+  const lastIndex = str.lastIndexOf(delimiter);
+  return lastIndex === -1 ? str : str.substring(0, lastIndex);
+};
+
+/**
+ *重命名序号后缀
+ * @param {Array} list 对象列表
+ * @param {Function} identifier 标识符
+ * @param {Function} callback 新名称回调(item,newName)
+ */
+export const idSuffixNames = (list, identifier, callback) => {
+  const ids = new Map();
+  list = list.forEach(item => {
+    const id = identifier(item);
+    const count = ids.has(id) ? ids.get(id) + 1 : 0;
+    ids.set(id, count);
+    callback && callback(item, count > 0 ? `${id}_${count}` : id);
+  });
+};

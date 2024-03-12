@@ -4,7 +4,7 @@ const log = (func, message) => {
   if (process.env.GITHUB_ACTIONS) {
     func(message);
   } else {
-    console.log(func.name + ': ' + message);
+    console.log(`${func.name} ': '${message}`);
   }
 };
 

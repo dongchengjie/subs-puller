@@ -23,10 +23,6 @@ export default {
     }
   },
   getConverter: (source, target) => {
-    // 未指定target 或 source与target相等，无需转换
-    if (source === target || !target) {
-      return { converter: content => content };
-    }
     switch (source) {
       case 'clash':
         return clashConverter;
