@@ -1,3 +1,4 @@
+import { isBase64, base64Decode } from '../../utils/string.js';
 import { logger } from '../../utils/logger.js';
 
 export default {
