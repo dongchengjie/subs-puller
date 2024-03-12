@@ -66,6 +66,6 @@ const commitFiles = async (files, octokit, owner, repo, branch, message, committ
 
     logger.info('Files commit success.');
   } catch (error) {
-    logger.error('Error committing files:', error.message);
+    logger.error('Error committing files:', error);
   }
 };
