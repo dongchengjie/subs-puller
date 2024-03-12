@@ -9,8 +9,8 @@ import AjvFormats from 'ajv-formats';
  * @returns {boolean} 是否满足schema
  */
 export const validateSchema = (schema, content, onError) => {
-  schema = typeof schema !== 'object' ? JSON.parse(schema.toString()) : schema;
-  content = typeof content !== 'object' ? JSON.parse(content.toString()) : content;
+  schema = typeof schema !== 'object' ? JSON.parse(schema ? schema.toString() : '') : schema;
+  content = typeof content !== 'object' ? JSON.parse(content ? content.toString() : '') : content;
   // 创建校验器
   const ajv = new Ajv({ allErrors: true });
   AjvFormats(ajv);

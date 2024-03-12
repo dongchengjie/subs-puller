@@ -1,8 +1,11 @@
 import core from '@actions/core';
 
 const log = (func, message) => {
-  console.log(message);
-  func(message);
+  if (process.env.GITHUB_ACTIONS) {
+    func(message);
+  } else {
+    console.log(func.name + ': ' + message);
+  }
 };
 
 export const logger = {

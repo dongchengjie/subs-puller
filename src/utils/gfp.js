@@ -39,11 +39,11 @@ const getSHA = async _axios => {
   return _axios({ method: 'get' })
     .then(res => res.data.sha)
     .catch(err => {
-      let message = err?.toString();
+      let message = err?.message;
       if (err?.response?.status === 404) {
         message = 'remote file does not exist and a new file will be added.';
       } else if (err?.response?.data) {
-        message = err.response.data.message;
+        message = err.response.data.message || err.response.data;
       }
       logger.error(`Error getting file SHA: ${message}`);
     });
@@ -68,9 +68,9 @@ const commit = async (_axios, sha, content, message, committer, committerEmail) 
       }
     })
     .catch(err => {
-      let message = err?.toString();
+      let message = err?.message;
       if (err?.response?.data) {
-        message = err.response.data.message;
+        message = err.response.data.message || err.response.data;
       }
       logger.error(`Error getting file SHA: ${message}`);
     });

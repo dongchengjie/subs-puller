@@ -25,25 +25,35 @@ export const getConverter = (source, target) => {
 const subConverter = async (content, _source, target) => {
   let server;
   try {
+    // 检查subConverter服务
+    checkSubConverter();
     // 启动文件代理
     server = await exposeContent(content);
     const local = `http://127.0.0.1:${server.address().port}`;
     // 构建转换地址
     const url = `http://127.0.0.1:25500/sub?target=${target}&url=${encodeURIComponent(
       local
-    )}&insert=false&config=https%3A%2F%2Fraw.githubusercontent.com%2FACL4SSR%2FACL4SSR%2Fmaster%2FClash%2Fconfig%2FACL4SSR_Online.ini`;
+    )}&config=https%3A%2F%2Fraw.githubusercontent.com%2FACL4SSR%2FACL4SSR%2Fmaster%2FClash%2Fconfig%2FACL4SSR_Online.ini`;
     // 订阅转换
     return await axios.get(url).then(res => res.data);
-  } catch (error) {
-    let message = error?.toString();
-    if (error?.code === 'ECONNREFUSED') {
-      message = 'subConverter service unavaliable';
-    } else if (error?.response?.data) {
-      message = error.response.data.message;
+  } catch (err) {
+    let message = err?.message;
+    if (err?.response?.data) {
+      message = err.response.data.message || err.response.data;
     }
     logger.error(`Error converting sub: ${message}`);
   } finally {
     server && server.close();
   }
   return '';
+};
+
+const checkSubConverter = async () => {
+  const avaliable = axios
+    .get('http://127.0.0.1:25500')
+    .then(res => false)
+    .catch(err => err?.response?.status === '404' && err?.response?.data === 'File not found.');
+  if (!avaliable) {
+    logger.error('subConverter service unavaliable');
+  }
 };
