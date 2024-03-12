@@ -16,7 +16,7 @@ RUN npm ci
 # Copy the rest of your action's code
 COPY . .
 
-CMD ["/subconverter/subconverter"]
+CMD ["sh", "-c", "echo 'Starting required services...' && /subconverter/subconverter"]
 RUN sleep 3
 
 # Run `node /index.js`
