@@ -4,20 +4,15 @@ FROM node:lts
 RUN apt-get update && apt-get install -y wget \
     && wget https://github.com/tindy2013/subconverter/releases/download/v0.8.1/subconverter_linux64.tar.gz -O subconverter.tar.gz \
     && tar -zxvf subconverter.tar.gz \
-    && chmod +x ./subconverter/subconverter \
-    && nohup ./subconverter/subconverter >./subconverter.log 2>&1 &
+    && chmod +x ./subconverter/subconverter
 
-# Copy the package.json and package-lock.json
-COPY package*.json ./
+# Copy files
+COPY . ./
 
 # Install dependencies
 RUN npm ci
 
-# Copy the rest of your action's code
-COPY . .
-
-CMD ["sh", "-c", "echo 'Starting required services...' && /subconverter/subconverter"]
-RUN sleep 3
+CMD ["sh", "-c", "echo 'Starting required services...' && /subconverter/subconverter >./subconverter.log 2>&1 &"]
 
 # Run `node /index.js`
 ENTRYPOINT ["node", "/index.js"]
