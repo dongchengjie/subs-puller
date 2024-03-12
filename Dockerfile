@@ -15,7 +15,7 @@ RUN npm ci
 # Copy the rest of your action's code
 COPY . .
 
-CMD ["/subconverter/subconverterasdada2"]
+CMD ["eho hello world dcj"]
 
 
 # Run `node /index.js`
