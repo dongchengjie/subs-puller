@@ -15,8 +15,5 @@ RUN npm ci
 # Copy the rest of your action's code
 COPY . .
 
-CMD ["eho hello world dcj"]
-
-
-# Run `node /index.js`
-ENTRYPOINT ["node", "/index.js"]
+# Run
+ENTRYPOINT ["sh", "-c", "/subconverter/subconverter && node /index.js"]
