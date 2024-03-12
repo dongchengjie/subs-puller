@@ -9,13 +9,6 @@
       "type": "array",
       "items": {
         "type": "object",
-        "definitions": {
-          "protocol": {
-            "type": "string",
-            "enum": ["clash", "v2ray"],
-            "errorMessage": "must be equal to one of the allowed values: [clash, v2ray]"
-          }
-        },
         "properties": {
           "id": {
             "type": "string",
@@ -23,11 +16,28 @@
           },
           "source": {
             "description": "type of source files",
-            "$ref": "#/properties/data/items/definitions/protocol"
+            "enum": ["clash", "v2ray"],
+            "errorMessage": "must be equal to one of the allowed values: [clash, v2ray]"
           },
           "target": {
             "description": "type of target files",
-            "$ref": "#/properties/data/items/definitions/protocol"
+            "enum": [
+              "clash",
+              "clashr",
+              "v2ray",
+              "quan",
+              "quanx",
+              "loon",
+              "ss",
+              "sssub",
+              "ssd",
+              "ssr",
+              "surfboard",
+              "surge&ver=2",
+              "surge&ver=3",
+              "surge&ver=4"
+            ],
+            "errorMessage": "must be equal to one of the allowed values: [clash, clashr, v2ray, quan, quanx, loon, ss, sssub, ssd, ssr, surfboard, surge&ver=2, surge&ver=3, surge&ver=4]"
           },
           "urls": {
             "type": "array",
