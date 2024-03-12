@@ -1,5 +1,4 @@
-import axios from 'axios';
-import { base64Encode } from './string.js';
+import { getOctokit } from '@actions/github';
 import { logger } from './logger.js';
 /**
  * 推送文件到Github仓库
@@ -12,66 +11,61 @@ import { logger } from './logger.js';
  * @param {string} committer 提交者名称
  * @param {string} committerEmail 提交者邮箱
  */
-export const push = async (repository, path, branch, token, content, message, committer, committerEmail) => {
+export const push = async (files, repository, branch, token, message, committer, committerEmail) => {
   const [owner, repo] = repository.split('/');
-  const _axios = createAxiosInstance(owner, repo, path, branch, token);
-  // 获取文件SHA
-  const sha = await getSHA(_axios);
+  branch = branch && branch.length > 0 ? branch : null;
+  const octokit = getOctokit(token);
   // 推送文件
-  return commit(_axios, sha, content, message, committer, committerEmail);
+  return await commitFiles(files, octokit, owner, repo, branch, message);
 };
 
-const restAPI = (owner, repo, path, branch) =>
-  'https://api.github.com/repos/' + owner + '/' + repo + '/contents/' + path + (branch ? '?ref=' + branch : '');
-
-const createAxiosInstance = (owner, repo, path, branch, token) => {
-  return axios.create({
-    baseURL: restAPI(owner, repo, path, branch),
-    headers: {
-      Accept: 'application/vnd.github+json',
-      Authorization: 'Bearer ' + token,
-      'X-GitHub-Api-Version': '2022-11-28'
-    }
-  });
-};
-
-const getSHA = async _axios => {
-  return _axios({ method: 'get' })
-    .then(res => res.data.sha)
-    .catch(err => {
-      let message = err?.message;
-      if (err?.response?.status === 404) {
-        message = 'remote file does not exist and a new file will be added.';
-      } else if (err?.response?.data) {
-        message = err.response.data.message || err.response.data;
-      }
-      logger.error(`Error getting file SHA: ${message}`);
+const commitFiles = async (files, octokit, owner, repo, branch, message, committer, committerEmail) => {
+  try {
+    // 获取当前分支的树
+    const branchRef = await octokit.rest.git.getRef({ owner, repo, ref: `heads/${branch}` });
+    const branchTree = await octokit.rest.git.getTree({
+      owner,
+      repo,
+      tree_sha: branchRef.data.object.sha,
+      recursive: true
     });
-};
 
-const commit = async (_axios, sha, content, message, committer, committerEmail) => {
-  const requestBody = JSON.stringify({
-    sha: sha ? sha : '',
-    message: message ? message : "Added/Updated by Github Action 'subs-puller'",
-    committer: {
-      name: committer ? committer : 'subs-puller',
-      email: committerEmail ? committerEmail : 'github@actions.com'
-    },
-    content: base64Encode(content)
-  });
-  return _axios({ method: 'put', data: requestBody })
-    .then(res => {
-      if (res.status === 200) {
-        logger.notice(`file '${res.data.content.name}' updated.`);
-      } else if (res.status === 201) {
-        logger.notice(`file '${res.data.content.name}' added.`);
-      }
-    })
-    .catch(err => {
-      let message = err?.message;
-      if (err?.response?.data) {
-        message = err.response.data.message || err.response.data;
-      }
-      logger.error(`Error getting file SHA: ${message}`);
+    // 创建一个新的树对象，包含上传的多个文件
+    const newTree = await octokit.rest.git.createTree({
+      owner,
+      repo,
+      tree: files.map(file => ({
+        path: file.path,
+        mode: '100644', // 100644 blob, 100755 executable, 040000 subdirectory, 160000 submodule, 120000 symlink
+        type: 'blob',
+        content: file.content
+      })),
+      base_tree: branchTree.data.sha
     });
+
+    // 创建一个新的提交对象
+    const newCommit = await octokit.rest.git.createCommit({
+      owner,
+      repo,
+      message: message ? message : "Added/Updated by Github Action 'subs-puller'",
+      author: {
+        name: committer ? committer : 'subs-puller',
+        email: committerEmail ? committerEmail : 'github@actions.com'
+      },
+      tree: newTree.data.sha,
+      parents: [branchRef.data.object.sha]
+    });
+
+    // 更新分支引用指向新的提交
+    await octokit.rest.git.updateRef({
+      owner,
+      repo,
+      ref: `heads/${branch}`,
+      sha: newCommit.data.sha
+    });
+
+    logger.info('Files commit success.');
+  } catch (error) {
+    logger.error('Error committing files:', error.message);
+  }
 };
