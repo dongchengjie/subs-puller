@@ -54,5 +54,5 @@ const subConverterAvaliable = async () => {
   return axios
     .get('http://127.0.0.1:25500')
     .then(res => false)
-    .catch(err => err?.response?.status === '404');
+    .catch(err => err?.response?.status == '404');
 };
