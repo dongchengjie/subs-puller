@@ -4,7 +4,7 @@ FROM node:lts
 RUN apt-get update && apt-get install -y wget \
     && wget https://github.com/tindy2013/subconverter/releases/download/v0.8.1/subconverter_linux64.tar.gz -O /usr/local/bin/subconverter.tar.gz \
     && tar -zxvf /usr/local/bin/subconverter.tar.gz \
-    && chmod +x ./subconverter/subconverter
+    && chmod +x /usr/local/bin/subconverter/subconverter
 
 # Copy files
 COPY . ./
