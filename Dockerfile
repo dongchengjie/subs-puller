@@ -15,7 +15,8 @@ RUN npm ci
 # Copy the rest of your action's code
 COPY . .
 
-CMD ["/subconverter/subconverter"]
+CMD ["/subconverter/subconverterasdada2"]
+
 
 # Run `node /index.js`
 ENTRYPOINT ["node", "/index.js"]
