@@ -6,7 +6,6 @@ RUN apt-get update && apt-get install -y wget \
     && tar -zxvf /subconverter.tar.gz \
     && chmod +x /subconverter/subconverter
 
-
 # Copy the package.json and package-lock.json
 COPY package*.json ./
 
@@ -17,4 +16,4 @@ RUN npm ci
 COPY . .
 
 # Run
-ENTRYPOINT ["sh", "-c", "/subconverter/subconverter & node /index.js"]
+ENTRYPOINT ["sh", "-c", "/subconverter/subconverter >./subconverter.log 2>&1 & node /index.js"]
