@@ -1,6 +1,12 @@
 FROM node:lts
-
+# workdir
 WORKDIR /github/workspace
+
+# Copy files
+COPY . /github/workspace
+
+# install dependencies
+RUN npm ci
 
 # download and start subconverter service (port:25500)
 RUN apt-get update && apt-get install -y wget \
@@ -9,11 +15,5 @@ RUN apt-get update && apt-get install -y wget \
     && chmod +x ./subconverter/subconverter \
     ./subconverter/subconverter >./subconverter.log 2>&1
 
-# Copy files
-COPY . .
-
-# Install dependencies
-RUN npm ci
-
-# Run `node /index.js`
+# run `node /index.js`
 ENTRYPOINT ["node", "./index.js"]
