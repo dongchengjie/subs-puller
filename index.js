@@ -70,11 +70,13 @@ const getActionInput = names => {
       logger.info('Converting subscribe files finished.');
 
       // 推送到仓库
-      logger.info('Pushing subscribe files...');
       const files = Array.from(converted.entries())
         .map(([key, value]) => (value ? { path: key.output, content: value } : null))
         .filter(Boolean);
-      await push(files, repository, branch, token);
+      if (files && files.length > 0) {
+        logger.info('Pushing subscribe files...');
+        await push(files, repository, branch, token);
+      }
     }
   } catch (err) {
     logger.error(err);

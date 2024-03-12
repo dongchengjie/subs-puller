@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { exposeContent } from '../utils/http-proxy.js';
 import { logger } from '../utils/logger.js';
+import { isBase64, base64Encode } from '../utils/string.js';
 
 // 订阅合并器
 import clash_combine from './clash/clash-combine.js';
@@ -22,7 +23,10 @@ export const getConverter = (source, target) => {
 };
 
 // 订阅转换器
-const subConverter = async (content, _source, target) => {
+const subConverter = async (content, source, target) => {
+  if ('v2ray' === source && !isBase64(content)) {
+    content = base64Encode(content);
+  }
   let server;
   try {
     // 检查subConverter服务

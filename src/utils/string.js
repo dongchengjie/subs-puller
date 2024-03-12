@@ -8,10 +8,6 @@ export const isBase64 = str => /^[A-Za-z0-9+\/]*={0,2}$/.test(str);
 export const uuid = () =>
   'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => ((Math.random() * 16) | 0).toString(16));
 
-function bytesToBase64(bytes) {
-  return btoa(new Uint8Array(bytes).reduce((data, byte) => data + String.fromCharCode(byte), ''));
-}
+const bytesToBase64 = bytes => btoa(new Uint8Array(bytes).reduce((data, byte) => data + String.fromCharCode(byte), ''));
 
-function base64ToBytes(base64) {
-  return new Uint8Array([...atob(base64)].map(char => char.charCodeAt(0)));
-}
+const base64ToBytes = base64 => new Uint8Array([...atob(base64)].map(char => char.charCodeAt(0)));
