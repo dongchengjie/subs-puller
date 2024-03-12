@@ -16,4 +16,4 @@ COPY . .
 RUN npm ci
 
 # Run `node /index.js`
-ENTRYPOINT ["node", "/index.js"]
+ENTRYPOINT ["node", "./index.js"]
