@@ -14,7 +14,6 @@ import logger from './logger.js';
 export const push = async (files, repository, branch, token, message, committer, committerEmail) => {
   const [owner, repo] = repository.split('/');
   repository = repository || process.env['GITHUB_REPOSITORY'];
-  logger.error(repository==='dongchengjie/airport')
   branch = branch || process.env['GITHUB_REF_NAME'] || 'main';
   const octokit = getOctokit(token);
   // 推送文件
@@ -24,6 +23,7 @@ export const push = async (files, repository, branch, token, message, committer,
 const commitFiles = async (files, octokit, owner, repo, branch, message, committer, committerEmail) => {
   try {
     // 获取当前分支引用
+    logger.error(JSON.stringify({ owner, repo, ref: `heads/${branch}` }));
     const branchRef = await octokit.rest.git.getRef({ owner, repo, ref: `heads/${branch}` });
     logger.info(`Current branch ref: ${branchRef.data.object.sha}.`);
 
