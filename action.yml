@@ -4,7 +4,7 @@ description: A github action designed for pulling subscribe files.
 
 inputs:
   repository:
-    description: 'Github repository(should contain both owner and repo, default: current repository)'
+    description: 'Github repository(should contain both owner and repo)'
     required: false
 
   branch:
