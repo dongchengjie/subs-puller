@@ -1,5 +1,5 @@
 import { isBase64, base64Encode, base64Decode, substringBeforeLast } from '../../../utils/string.js';
-import { logger } from '../../../utils/logger.js';
+import logger from '../../../utils/logger.js';
 
 export default {
   process: async (content, item) => {

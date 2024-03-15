@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { logger } from './logger.js';
+import logger from './logger.js';
 /**
  *
  * @param {*} urls url列表

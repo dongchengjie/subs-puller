@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { exposeContent } from '../../utils/http-proxy.js';
-import { logger } from '../../utils/logger.js';
+import logger from '../../utils/logger.js';
 
 export default {
   convert: async (content, _source, target) => {

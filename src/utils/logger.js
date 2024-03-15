@@ -8,7 +8,7 @@ const log = (func, message) => {
   }
 };
 
-export const logger = {
+export default {
   debug: message => log(core.debug, message),
   error: message => log(core.error, message),
   warning: message => log(core.warning, message),

@@ -5,7 +5,7 @@ import { currentDir } from './src/utils/path.js';
 import { fetchContents } from './src/utils/fetcher.js';
 import { getInput } from '@actions/core';
 import { load } from 'js-yaml';
-import { logger } from './src/utils/logger.js';
+import logger from './src/utils/logger.js';
 import { push } from './src/utils/gfp.js';
 import { readFileSync } from 'fs';
 import { validateSchema } from './src/utils/schema/schema.js';

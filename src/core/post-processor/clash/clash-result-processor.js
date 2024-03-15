@@ -1,5 +1,5 @@
 import { load } from 'js-yaml';
-import { logger } from '../../../utils/logger.js';
+import logger from '../../../utils/logger.js';
 import { generateConfig } from '../../combiner/clash/clash-combiner.js';
 
 export default {
