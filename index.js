@@ -17,6 +17,7 @@ const getActionInput = names => {
 
 (async () => {
   try {
+    logger.error(process.env['GITHUB_REPOSITORY']);
     // 接收Github Action参数
     const [repository, branch, token, config] = getActionInput(['repository', 'branch', 'token', 'config']);
 
