@@ -14,7 +14,6 @@ import logger from './logger.js';
 export const push = async (files, repository, branch, token, message, committer, committerEmail) => {
   repository = repository || process.env['GITHUB_REPOSITORY'];
   branch = branch || process.env['GITHUB_REF_NAME'] || 'main';
-  token = token || process.env['GITHUB_TOKEN'];
   const [owner, repo] = repository.split('/');
   const octokit = getOctokit(token);
   // 推送文件
