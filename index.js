@@ -17,9 +17,9 @@ const getActionInput = names => {
 
 (async () => {
   try {
-    logger.error(process.env['GITHUB_REPOSITORY']);
     // 接收Github Action参数
     const [repository, branch, token, config] = getActionInput(['repository', 'branch', 'token', 'config']);
+    logger.error(repository);
 
     // 读取配置、schema文件
     const configContent = process.env['dev'] ? readFileSync('./example.yaml') : (await axios.get(config)).data;
