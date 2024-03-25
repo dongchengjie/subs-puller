@@ -83,9 +83,9 @@ const getActionInput = names => {
 
       // 生成合并proxy-provider文件
       if (merged) {
-        const providers = Array.from(resultMap.entries()).map(([key]) => [
-          key.id,
-          `https://raw.githubusercontent.com/${repository}/` + key.output
+        const providers = jsonObject.data.map(item => [
+          item.id,
+          `https://raw.githubusercontent.com/${repository}/` + item.output
         ]);
         const providersTemplate = readFileSync(currentDir() + '/src/template/providers.yaml', 'utf8');
         const providerList = providers
