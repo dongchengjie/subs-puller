@@ -18,13 +18,15 @@ const getActionInput = names => {
 (async () => {
   try {
     // 接收Github Action参数
-    const [repository, branch, token, config, merged] = getActionInput([
+    let [repository, branch, token, config, merged] = getActionInput([
       'repository',
       'branch',
       'token',
       'config',
       'merged'
     ]);
+    repository = repository || process.env['GITHUB_REPOSITORY'];
+    branch = branch || process.env['GITHUB_REF_NAME'] || 'main';
 
     // 读取配置、schema文件
     const configContent = process.env['dev'] ? readFileSync('./example.yaml') : (await axios.get(config)).data;
@@ -85,8 +87,7 @@ const getActionInput = names => {
       if (merged) {
         const providers = jsonObject.data.map(item => [
           item.id,
-          `https://raw.githubusercontent.com/${repository}/${branch || process.env['GITHUB_REF_NAME'] || 'main'}/` +
-            item.output
+          `https://raw.githubusercontent.com/${repository}/${branch}/` + item.output
         ]);
         const providersTemplate = readFileSync(currentDir() + '/src/template/providers.yaml', 'utf8');
         const providerList = providers
