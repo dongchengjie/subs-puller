@@ -85,7 +85,8 @@ const getActionInput = names => {
       if (merged) {
         const providers = jsonObject.data.map(item => [
           item.id,
-          `https://raw.githubusercontent.com/${repository}/` + item.output
+          `https://raw.githubusercontent.com/${repository}/${branch || process.env['GITHUB_REF_NAME'] || 'main'}/` +
+            item.output
         ]);
         const providersTemplate = readFileSync(currentDir() + '/src/template/providers.yaml', 'utf8');
         const providerList = providers
