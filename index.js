@@ -18,7 +18,13 @@ const getActionInput = names => {
 (async () => {
   try {
     // 接收Github Action参数
-    const [repository, branch, token, config] = getActionInput(['repository', 'branch', 'token', 'config']);
+    const [repository, branch, token, config, merged] = getActionInput([
+      'repository',
+      'branch',
+      'token',
+      'config',
+      'merged'
+    ]);
 
     // 读取配置、schema文件
     const configContent = process.env['dev'] ? readFileSync('./example.yaml') : (await axios.get(config)).data;
@@ -74,6 +80,23 @@ const getActionInput = names => {
         })
       );
       resultMap = new Map(resultMap.filter(Boolean).filter(([item, result]) => result));
+
+      // 生成合并proxy-provider文件
+      if (merged) {
+        const providers = Array.from(resultMap.entries()).map(([key]) => [
+          key.id,
+          `https://raw.githubusercontent.com/${repository}/` + key.output
+        ]);
+        const providersTemplate = readFileSync(currentDir() + '/src/template/providers.yaml', 'utf8');
+        const providerList = providers
+          .map(
+            ([key, value]) =>
+              '  ' + key + ":\n    type: http\n    url: '" + value + "'\n    path: ./providers/" + key + '.yaml'
+          )
+          .join('\n');
+        const mergedContent = providersTemplate.replace('proxy-providers: []', 'proxy-providers: \n' + providerList);
+        resultMap.set({ output: merged }, mergedContent);
+      }
 
       // 推送到仓库
       const files = Array.from(resultMap.entries())

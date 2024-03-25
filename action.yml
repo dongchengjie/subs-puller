@@ -19,6 +19,10 @@ inputs:
     description: 'Config file(url is supported)'
     required: true
 
+  merged:
+    description: 'Where merged proxy-provider file is saved'
+    required: false
+
 runs:
   using: docker
   image: Dockerfile
