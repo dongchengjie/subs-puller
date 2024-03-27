@@ -18,17 +18,15 @@ const getActionInput = names => {
 (async () => {
   try {
     // 接收Github Action参数
-    let [repository, branch, token, config, merged, mirror] = getActionInput([
+    let [repository, branch, token, config, merged] = getActionInput([
       'repository',
       'branch',
       'token',
       'config',
-      'merged',
-      'github-mirror'
+      'merged'
     ]);
     repository = repository || process.env['GITHUB_REPOSITORY'];
     branch = branch || process.env['GITHUB_REF_NAME'] || 'main';
-    mirror = mirror || '';
 
     // 读取配置、schema文件
     const configContent = process.env['dev'] ? readFileSync('./example.yaml') : (await axios.get(config)).data;
@@ -111,6 +109,7 @@ const getActionInput = names => {
 
       // 生成合并proxy-provider文件
       if (merged) {
+        const mirror = jsonObject['github-mirror'] || '';
         const providers = jsonObject.data
           .filter(item => item.target === 'clash')
           .map(item => [item.id, `${mirror}https://raw.githubusercontent.com/${repository}/${branch}/` + item.output]);
