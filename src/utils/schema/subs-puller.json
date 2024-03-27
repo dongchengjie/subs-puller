@@ -14,9 +14,13 @@
             "type": "string",
             "minLength": 1
           },
+          "type": {
+            "type": "string",
+            "minLength": 1
+          },
           "source": {
             "description": "type of source files",
-            "enum": ["clash", "v2ray"],
+            "enum": ["auto", "clash", "v2ray"],
             "errorMessage": "must be equal to one of the allowed values: [clash, v2ray]"
           },
           "target": {
@@ -48,6 +52,11 @@
               "errorMessage": "must be an http or https link"
             }
           },
+          "options": {
+            "description": "puller opstions",
+            "type": "object",
+            "additionalProperties": true
+          },
           "timeout": {
             "description": "http request timeout",
             "type": "number"
@@ -63,7 +72,7 @@
             "minLength": 1
           }
         },
-        "required": ["id", "source", "urls", "output"],
+        "required": ["id", "type", "source", "urls", "output"],
         "additionalProperties": false
       }
     }

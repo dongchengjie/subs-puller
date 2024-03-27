@@ -2,13 +2,13 @@ import axios from 'axios';
 import dispatcher from './src/core/dispatcher.js';
 import dotenv from 'dotenv';
 import { currentDir } from './src/utils/path.js';
-import { fetchContents } from './src/utils/fetcher.js';
 import { getInput } from '@actions/core';
 import { load } from 'js-yaml';
 import logger from './src/utils/logger.js';
 import { push } from './src/utils/gfp.js';
 import { readFileSync } from 'fs';
 import { validateSchema } from './src/utils/schema/schema.js';
+import { isBase64, base64Encode, base64Decode } from './src/utils/string.js';
 
 const getActionInput = names => {
   dotenv.config();
@@ -37,23 +37,47 @@ const getActionInput = names => {
     if (validateSchema(schemaContent, jsonObject, errors => logger.error(errors))) {
       // 拉取订阅文件内容
       logger.info('Fetching subscribe files...');
-      const contents = new Map(
+      let contents = new Map(
         (
           await Promise.all(
-            jsonObject.data.map(async item => {
-              const timeout = item.timeout ?? 10000;
-              const headers = item.headers;
-              const result = await fetchContents(item.urls, timeout, headers, (successes, failures) =>
-                logger.info(`${item.id} fetch completed, ${successes} successes and ${failures} failures`)
-              );
-              return [item, result];
-            })
+            jsonObject.data.map(async item => await dispatcher.getAcquirer(item.type).acquire(item, token))
           )
         ).filter(([_item, result]) => {
           return result && result.length > 0;
         })
       );
       logger.info('Subscribe files fetched.');
+
+      // source为auto,使用subConverter将内容转换为target类型
+      contents = new Map(
+        (
+          await Promise.all(
+            Array.from(contents.entries()).map(async ([item, contents]) => {
+              if (item.source === 'auto') {
+                const converter = dispatcher.getConverter('auto', item.target);
+                const newC = await Promise.all(
+                  contents.map(async content => {
+                    let attempts = [];
+                    attempts.push(
+                      await converter.convert(isBase64(content) ? base64Decode(content) : content, 'clash', item.target)
+                    );
+                    attempts.push(
+                      await converter.convert(isBase64(content) ? content : base64Encode(content), 'v2ray', item.target)
+                    );
+                    attempts = attempts.filter(Boolean);
+                    return attempts.length > 0 ? attempts[0] : '';
+                  })
+                );
+                item.source = item.target;
+                return [item, newC];
+              }
+              return [item, contents];
+            })
+          )
+        )
+          .map(([item, result]) => [item, result.filter(Boolean)])
+          .filter(([item, result]) => result && result.length > 0)
+      );
 
       // 合并、转换、后置处理
       let resultMap = await Promise.all(
@@ -85,10 +109,9 @@ const getActionInput = names => {
 
       // 生成合并proxy-provider文件
       if (merged) {
-        const providers = jsonObject.data.map(item => [
-          item.id,
-          `https://raw.githubusercontent.com/${repository}/${branch}/` + item.output
-        ]);
+        const providers = jsonObject.data
+          .filter(item => item.target === 'clash')
+          .map(item => [item.id, `https://raw.githubusercontent.com/${repository}/${branch}/` + item.output]);
         const providersTemplate = readFileSync(currentDir() + '/src/template/providers.yaml', 'utf8');
         const providerList = providers
           .map(

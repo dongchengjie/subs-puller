@@ -1,3 +1,7 @@
+// 订阅拉取器
+import httpAcquirer from './acquirer/http-acquirer.js';
+import githubAcquirer from './acquirer/github-acquirer.js';
+
 // 订阅合并器
 import clashCombiner from './combiner/clash/clash-combiner.js';
 import v2rayCombiner from './combiner/v2ray/v2ray-combiner.js';
@@ -12,6 +16,16 @@ import clashPostProcessor from './post-processor/clash/clash-result-processor.js
 import v2rayPostProcessor from './post-processor/v2ray/v2ray-result-processor.js';
 
 export default {
+  getAcquirer: type => {
+    switch (type) {
+      case 'http':
+        return httpAcquirer;
+      case 'github':
+        return githubAcquirer;
+      default:
+        return { acquire: item => [item, []] };
+    }
+  },
   getCombiner: (source, target) => {
     switch (source) {
       case 'clash':
