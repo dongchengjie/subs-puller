@@ -5,6 +5,10 @@
   "description": "YAML subs-puller",
   "type": "object",
   "properties": {
+    "github-mirror": {
+      "description": "Boosting Github resources download speed",
+      "type": "string"
+    },
     "data": {
       "type": "array",
       "items": {
