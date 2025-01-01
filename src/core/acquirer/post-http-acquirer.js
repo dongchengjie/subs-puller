@@ -10,16 +10,17 @@ export default {
         logger.info(`${item.id} pre-fetch completed, ${successes} successes and ${failures} failures`)
       );
       // 生成处理函数
-      const func = (() => {
+      const parser = (str) => {
         try {
-          return eval(item?.options?.func);
+          const func = eval(item?.options?.func);
+          return func(str);
         } catch {
-          return (str) => "";
+          return "";
         }
-      })();
+      };
       // 预处理得到urls
       const urls = contents
-        .map((content) => func(content).trim())
+        .map((content) => parser(content).trim())
         .filter(Boolean);
       const result = await fetchContents(urls, timeout, headers, (successes, failures) =>
         logger.info(`${item.id} post-fetch completed, ${successes} successes and ${failures} failures`)
