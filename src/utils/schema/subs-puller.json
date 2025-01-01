@@ -19,8 +19,7 @@
             "minLength": 1
           },
           "type": {
-            "type": "string",
-            "minLength": 1
+            "enum": ["http", "post-http", "github"]
           },
           "source": {
             "description": "type of source files",
@@ -29,23 +28,8 @@
           },
           "target": {
             "description": "type of target files",
-            "enum": [
-              "clash",
-              "clashr",
-              "v2ray",
-              "quan",
-              "quanx",
-              "loon",
-              "ss",
-              "sssub",
-              "ssd",
-              "ssr",
-              "surfboard",
-              "surge&ver=2",
-              "surge&ver=3",
-              "surge&ver=4"
-            ],
-            "errorMessage": "must be equal to one of the allowed values: [clash, clashr, v2ray, quan, quanx, loon, ss, sssub, ssd, ssr, surfboard, surge&ver=2, surge&ver=3, surge&ver=4]"
+            "enum": ["clash", "v2ray"],
+            "errorMessage": "must be equal to one of the allowed values: [clash, v2ray]"
           },
           "urls": {
             "type": "array",

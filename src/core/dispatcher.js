@@ -1,5 +1,6 @@
 // 订阅拉取器
 import httpAcquirer from './acquirer/http-acquirer.js';
+import postHttpAcquirer from './acquirer/post-http-acquirer.js';
 import githubAcquirer from './acquirer/github-acquirer.js';
 
 // 订阅合并器
@@ -20,6 +21,8 @@ export default {
     switch (type) {
       case 'http':
         return httpAcquirer;
+      case 'post-http':
+        return postHttpAcquirer;
       case 'github':
         return githubAcquirer;
       default:
